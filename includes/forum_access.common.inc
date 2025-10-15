@@ -44,7 +44,7 @@ function forum_access_modify_check_query($query, $settings) {
  * Access checking.
  */
 function forum_access_access($op, $tid, $account = NULL) {
-  module_load_include('inc', 'forum_access', 'includes/forum_access.acl');
+  \Drupal::moduleHandler()->loadInclude('forum_access', 'inc', 'includes/forum_access.acl');
   $cache = &drupal_static(__FUNCTION__, []);
   // Load current user if account is empty.
   if (!$account) {

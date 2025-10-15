@@ -44,7 +44,7 @@ function _forum_access_form_moderators_save(FormStateInterface $form_state) {
   if ($data = $form_state->getValue(['forum_access', 'moderators'])) {
     if ($data['acl_id'] == 0) {
       $tid = $form_state->getValue(['tid']);
-      module_load_include('inc', 'forum_access', 'includes/forum_access.acl');
+      \Drupal::moduleHandler()->loadInclude('forum_access', 'inc', 'includes/forum_access.acl');
       $data['acl_id'] = forum_access_get_acl($tid, "moderate");
     }
     acl_save_form($data, 0);
@@ -252,9 +252,10 @@ function _forum_access_permission_link($module, $permission) {
  * Get form table with roles grants.
  */
 function _forum_access_forum_grants_form($form_state, $settings) {
-  $roles = user_roles();
-  $administer_forums_roles = user_roles(FALSE, 'administer forums');
-  $bypass_node_access_roles = user_roles(FALSE, 'bypass node access');
+  $roles = Drupal\user\Entity\Role::loadMultiple();
+  $administer_forums_roles = array_filter($roles, fn(Drupal\user\RoleInterface $role) => $role->hasPermission(
+      'administer forums'));
+  $bypass_node_access_roles = array_filter($roles, fn(Drupal\user\RoleInterface $role) => $role->hasPermission('bypass node access'));
   $vid = \Drupal::config('forum.settings')->get('vocabulary');
   $cols = [
     'view' => t('View this forum'),
@@ -274,9 +275,11 @@ function _forum_access_forum_grants_form($form_state, $settings) {
  * Get roles permissions form for container.
  */
 function _forum_access_container_grants_form($form_state, $settings) {
-  $roles = user_roles();
-  $administer_forums_roles = user_roles(FALSE, 'administer forums');
-  $bypass_node_access_roles = user_roles(FALSE, 'bypass node access');
+  $roles = Drupal\user\Entity\Role::loadMultiple();
+  $administer_forums_roles = array_filter($roles, fn(Drupal\user\RoleInterface $role) => $role->hasPermission(
+    'administer forums'
+  ));
+  $bypass_node_access_roles = array_filter($roles, fn(Drupal\user\RoleInterface $role) => $role->hasPermission('bypass node access'));
   $vid = \Drupal::config('forum.settings')->get('vocabulary');
   $vocabulary = Vocabulary::load($vid);
   $cols = [
